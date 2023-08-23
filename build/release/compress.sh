@@ -36,7 +36,7 @@ cp ../NOTICE ${package_name}/
 mkdir -p ${package_name}/lib/ext
 
 # Spark binary won't be distributed into Kylin binary due to size limit
-# cp -rf spark ${package_name}/
+cp -rf spark ${package_name}/
 cp -rf sample_project ${package_name}/
 cp -rf samples ${package_name}/
 
@@ -94,7 +94,7 @@ cp -rf server/webapp/dist ${package_name}/server/public
 cp -rf server/newten.jar ${package_name}/server/
 cp -rf server/jars ${package_name}/server/
 # cp -rf deploy/.keystore ${package_name}/server/
-# mv ${package_name}/server/jars/log4j* ${package_name}/spark/jars/
+mv ${package_name}/server/jars/log4j* ${package_name}/spark/jars/
 rm -rf server/
 
 ## comment all default properties, and append them to the user visible kylin.properties
@@ -104,7 +104,7 @@ sed '1,21d' ../src/core-common/src/main/resources/kylin-defaults0.properties | a
 find ${package_name} -type d -exec chmod 755 {} \;
 find ${package_name} -type f -exec chmod 644 {} \;
 find ${package_name} -type f -name "*.sh" -exec chmod 755 {} \;
-# find ${package_name}/spark -type f -exec chmod 755 {} \;
+find ${package_name}/spark -type f -exec chmod 755 {} \;
 
 if [[ -d "${package_name}/postgresql" ]]; then
     find ${package_name}/influxdb -type f -exec chmod 755 {} \;

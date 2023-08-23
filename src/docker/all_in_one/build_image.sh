@@ -27,7 +27,7 @@ rm -rf ${DIR}/package/*
 if [[ ! -d ${DIR}/package/ ]]; then
     mkdir -p ${DIR}/package/
 fi
-${DIR}/../../../build/release/release.sh
+#${DIR}/../../../build/release/release.sh
 cp ${DIR}/../../../dist/apache-kylin-*.tar.gz ${DIR}/package/
 
 echo "start to build Hadoop docker image"
