@@ -46,6 +46,7 @@ public class JdbcSource implements ISource {
     // for reflection
     public JdbcSource(KylinConfig config) {
         try {
+            System.out.println("config:" + config.exportToProperties().toString());
             dataSource = SourceConnectorFactory.getJdbcConnector(config);
         } catch (Exception e) {
             log.error("DataSource cannot be connected.");

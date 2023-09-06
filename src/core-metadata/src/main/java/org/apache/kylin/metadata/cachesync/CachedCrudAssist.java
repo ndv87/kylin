@@ -19,6 +19,7 @@
 package org.apache.kylin.metadata.cachesync;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -168,15 +169,25 @@ public abstract class CachedCrudAssist<T extends RootPersistentEntity> {
     }
 
     public T get(String resourceName) {
-        val raw = store.getResource(resourcePath(resourceName));
+        System.out.println("CachedCrudAssist.resourceName: " + resourceName);
+        System.out.println("CachedCrudAssist.resRootPath: " + resRootPath);
+        System.out.println("CachedCrudAssist all resources!: " + store.collectResourceRecursively(resRootPath, ""));
+        String upperResource = resourceName.toUpperCase(Locale.ROOT);
+        String upperResourcePath = resourcePath(upperResource);
+        System.out.println("CachedCrudAssist.getResource: " + store.getResource(upperResourcePath));
+
+        String resourceNameFinal = resourceName.contains(".") ? upperResource : resourceName;
+
+        val raw = store.getResource(resourcePath(resourceNameFinal));
         if (raw == null) {
-            cache.invalidate(resourceName);
+            System.out.println("CachedCrudAssist.get raw == null");
+            cache.invalidate(resourceNameFinal);
             return null;
         }
-        if (checker.needReload(resourceName)) {
-            reloadAt(resourcePath(resourceName));
+        if (checker.needReload(resourceNameFinal)) {
+            reloadAt(resourcePath(resourceNameFinal));
         }
-        return cache.getIfPresent(resourceName);
+        return cache.getIfPresent(resourceNameFinal);
     }
 
     public void invalidateCache(String resourceName) {

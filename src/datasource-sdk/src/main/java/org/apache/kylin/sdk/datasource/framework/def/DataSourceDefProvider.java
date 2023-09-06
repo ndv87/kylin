@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+//import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -46,6 +47,7 @@ public class DataSourceDefProvider {
 
     private DataSourceDef loadDataSourceFromEnv(String id) {
         String resourcePath = RESOURCE_DIR + "/" + id + ".xml";
+        System.out.println("DataSourceDef.loadDataSourceFromEnv.resourcePath: " + resourcePath);
         String resourcePathOverride = resourcePath + ".override";
         InputStream is = null;
         try {
@@ -95,22 +97,28 @@ public class DataSourceDefProvider {
 
     public DataSourceDef getById(String id) {
         if (isDevEnv()) {
+            System.out.println("DataSourceDef.isDevEnv");
             DataSourceDef devDs = loadDataSourceFromDir(id);
             if (devDs != null)
                 return devDs;
         }
 
+        System.out.println("DataSourceDef.dsCache.get(id)");
+//        Arrays.stream(Thread.currentThread().getStackTrace()).limit(10).forEach(l-> System.out.println(l.toString()));
+        System.out.println("dsCache.get(id) id: "+ id);
         DataSourceDef ds = dsCache.get(id);
         if (ds != null)
             return ds;
 
         synchronized (this) {
+            System.out.println("synchronized DataSourceDef.dsCache.get(id)");
             ds = dsCache.get(id);
             if (ds == null) {
                 ds = loadDataSourceFromEnv(id);
                 if (ds != null)
                     dsCache.put(id, ds);
             }
+            System.out.println("ds: " + ds);
         }
         return ds;
     }

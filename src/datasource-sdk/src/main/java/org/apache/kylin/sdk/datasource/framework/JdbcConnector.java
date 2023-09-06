@@ -21,6 +21,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -161,6 +162,9 @@ public class JdbcConnector implements Closeable {
             }
             dbNames.removeAll(removed);
         }
+
+        System.out.println("listDatabases() dbNames: " + dbNames);
+        Arrays.stream(Thread.currentThread().getStackTrace()).forEach(l-> System.out.println(l.toString()));
         return dbNames;
     }
 

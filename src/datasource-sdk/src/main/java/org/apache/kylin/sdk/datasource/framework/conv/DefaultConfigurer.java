@@ -116,6 +116,8 @@ public class DefaultConfigurer implements SqlConverter.IConfigurer {
 
     @Override
     public boolean enableCache() {
+        System.out.println("enableCache check ");
+        System.out.println("enableCache: " + dsDef.toString());
         return "true".equalsIgnoreCase(dsDef.getPropertyValue("metadata.enable-cache", "false"));
     }
 

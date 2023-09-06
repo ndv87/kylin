@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Arrays;
 
 import javax.sql.rowset.CachedRowSet;
 
@@ -202,8 +203,10 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
         List<String> ret = new LinkedList<>();
         try (Connection con = getConnection(); ResultSet rs = con.getMetaData().getSchemas()) {
             while (rs.next()) {
+                System.out.println("listDatabases rs.next(): " + rs.getString(TABLE_SCHEM));
                 String schema = rs.getString(TABLE_SCHEM);
                 if (StringUtils.isNotBlank(schema)) {
+                    System.out.println("listDatabases ret.add(schema): " + rs.getString(TABLE_SCHEM));
                     ret.add(schema);
                 }
             }
@@ -220,11 +223,23 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
      */
     @Override
     public List<String> listTables(String schema) throws SQLException {
+        System.out.println("Call listTables(String schema): " + schema);
+
+        Arrays.stream(Thread.currentThread().getStackTrace()).forEach(l-> System.out.println(l.toString()));
+
         List<String> ret = new ArrayList<>();
+        Connection conne = getConnection();
+        System.out.println("Call listTables(String schema) conne: " + conne.getClass().getName());
+//        String loweredSchema = schema.toLowerCase();
         try (Connection conn = getConnection(); ResultSet rs = conn.getMetaData().getTables(null, schema, null, null)) {
+//            System.out.println("try (Connection conn = getConnection() rs.getStrin: " + rs.getString(1));
+            System.out.println("try (Connection conn = getConnection()");
             while (rs.next()) {
+                System.out.println("listTables rs.next(): " + rs.getString(TABLE_NAME));
                 String name = rs.getString(TABLE_NAME);
+                //&& rs.getString("TABLE_TYPE").equalsIgnoreCase("TABLE")
                 if (StringUtils.isNotBlank(name)) {
+                    System.out.println("listTables ret.add(name): " + rs.getString(TABLE_NAME));
                     ret.add(name);
                 }
             }
@@ -239,12 +254,17 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
      * @throws SQLException
      */
     public List<String> listTables() throws SQLException {
+        System.out.println("Call listTables()");
+
         List<String> ret = new ArrayList<>();
         if (TABLES_CACHE != null) {
             if (TABLES_CACHE.size() == 0) {
+                System.out.println("listTables() try (Connection conn = getConnection()");
                 try (Connection conn = getConnection();
                         ResultSet rs = conn.getMetaData().getTables(null, null, null, null)) {
                     while (rs.next()) {
+                        System.out.println("listTables() rs.next(): " + rs.getString(TABLE_NAME));
+
                         String name = rs.getString(TABLE_NAME);
                         String database = rs.getString(TABLE_SCHEM) != null ? rs.getString(TABLE_SCHEM)
                                 : rs.getString("TABLE_CAT");
@@ -263,10 +283,12 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
                 }
             } else {
                 for (Map.Entry<String, List<String>> entry : TABLES_CACHE.asMap().entrySet()) {
+                    System.out.println("listTables() ret.addAll rs.next(): " + entry.getValue());
                     ret.addAll(entry.getValue());
                 }
             }
         }
+        System.out.println("listTables() return ret: " + ret);
 
         return ret;
     }

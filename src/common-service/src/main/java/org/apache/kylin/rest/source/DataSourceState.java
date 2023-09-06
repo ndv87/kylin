@@ -248,7 +248,7 @@ public class DataSourceState implements Runnable {
     private NHiveSourceInfo fetchSourceInfo(List<String> filterList) {
         NHiveSourceInfo sourceInfo = new NHiveSourceInfo();
         try {
-            List<String> databaseList = explore.listDatabases().stream().map(StringUtils::toRootUpperCase)
+            List<String> databaseList = explore.listDatabases().stream()//.map(StringUtils::toRootUpperCase)
                     .filter(database -> CollectionUtils.isEmpty(filterList) || filterList.contains(database))
                     .collect(Collectors.toList());
             Map<String, List<String>> dbTableList = listTables(databaseList);

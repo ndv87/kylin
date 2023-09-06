@@ -243,12 +243,17 @@ public class TableService extends BasicService {
                 tableDescRequest.getProject());
         List<TableDesc> tables = Lists.newArrayList();
         //get table not fuzzy,can use getTableDesc(tableName)
-        if (StringUtils.isNotEmpty(tableDescRequest.getTable()) && !tableDescRequest.isFuzzy()) {
+        // TODO was:  if (StringUtils.isNotEmpty(tableDescRequest.getTable()) && !tableDescRequest.isFuzzy()) {
+        if (StringUtils.isNotEmpty(tableDescRequest.getTable()) && tableDescRequest.isFuzzy()) {
+            System.out.println("getTableDesc if (StringUtils.isNotEmpty");
             val tableDesc = nTableMetadataManager
                     .getTableDesc(tableDescRequest.getDatabase() + "." + tableDescRequest.getTable());
             if (tableDesc != null && tableDesc.isAccessible(streamingEnabled))
                 tables.add(tableDesc);
         } else {
+            System.out.println("getTableDesc else (StringUtils.isNotEmpty");
+            nTableMetadataManager.listAllTables().forEach(e-> System.out.println("listAllTables: " + e.getName()));
+
             tables.addAll(nTableMetadataManager.listAllTables().stream().filter(tableDesc -> {
                 if (StringUtils.isEmpty(tableDescRequest.getDatabase())) {
                     return true;
@@ -360,7 +365,9 @@ public class TableService extends BasicService {
         ISourceMetadataExplorer explr = SourceFactory.getSource(projectInstance).getSourceMetadataExplorer();
         List<Pair<Map.Entry<String, String>, Object>> results = databaseTables.entries().parallelStream().map(entry -> {
             try {
-                Pair<TableDesc, TableExtDesc> pair = explr.loadTableMetadata(entry.getKey(), entry.getValue(), project);
+//  TODO was:   Pair<TableDesc, TableExtDesc> pair = explr.loadTableMetadata(entry.getKey(), entry.getValue(), project);
+                Pair<TableDesc, TableExtDesc> pair = explr.loadTableMetadata(entry.getKey().toLowerCase(), entry.getValue().toLowerCase(), project);
+                System.out.println("extractTableMeta.pair: " + pair.toString());
                 TableDesc tableDesc = pair.getFirst();
                 Preconditions.checkState(tableDesc.getDatabase().equalsIgnoreCase(entry.getKey()));
                 Preconditions.checkState(tableDesc.getName().equalsIgnoreCase(entry.getValue()));
@@ -373,6 +380,9 @@ public class TableService extends BasicService {
                 return new Pair<Map.Entry<String, String>, Object>(entry, e);
             }
         }).collect(Collectors.toList());
+
+        System.out.println("extractTableMeta.results: " + results);
+
         List<Pair<Map.Entry<String, String>, Object>> errorList = results.stream()
                 .filter(pair -> pair.getSecond() instanceof Throwable).collect(Collectors.toList());
         if (!errorList.isEmpty()) {
@@ -392,7 +402,9 @@ public class TableService extends BasicService {
         aclEvaluate.checkProjectWritePermission(project);
         ISourceMetadataExplorer explr = SourceFactory.getSource(getManager(NProjectManager.class).getProject(project))
                 .getSourceMetadataExplorer();
-        return explr.listDatabases().stream().map(str -> str.toUpperCase(Locale.ROOT)).collect(Collectors.toList());
+        System.out.println("getSourceDbNames explr: " + explr.listDatabases());
+        //TODO was:  return explr.listDatabases().stream().map(str -> str.toUpperCase(Locale.ROOT)).collect(Collectors.toList());
+        return explr.listDatabases().stream().map(str -> str).collect(Collectors.toList());
     }
 
     public List<String> getSourceTableNames(String project, String database, final String table) throws Exception {
@@ -1674,8 +1686,12 @@ public class TableService extends BasicService {
      */
     private void handleExcludedColumns(String project, ReloadTableContext context, TableDesc newTable,
             String tableIdentity) {
+        System.out.println("handleExcludedColumns.tableIdentity: " + tableIdentity);
+
         NTableMetadataManager tableManager = getManager(NTableMetadataManager.class, project);
         TableDesc originTable = tableManager.getTableDesc(tableIdentity);
+        System.out.println("handleExcludedColumns.originTable: " + originTable);
+
         TableExtDesc originExt = tableManager.getTableExtIfExists(originTable);
         if (originExt == null) {
             return;
@@ -1820,6 +1836,7 @@ public class TableService extends BasicService {
         Collection<String> databases = useHiveDatabase ? getSourceDbNames(project) : getLoadedDatabases(project);
         val projectInstance = getManager(NProjectManager.class).getProject(project);
         List<String> tableFilterList = DataSourceState.getInstance().getHiveFilterList(projectInstance);
+        System.out.println("NInitTablesResponse!: " + databases);
         for (String database : databases) {
             if ((exceptDatabase != null && !exceptDatabase.equalsIgnoreCase(database))
                     || (!tableFilterList.isEmpty() && !tableFilterList.contains(database))) {
@@ -1833,12 +1850,15 @@ public class TableService extends BasicService {
             tableDescRequest.setDatabase(database);
             tableDescRequest.setTable(table);
             Pair<List<?>, Integer> objWithActualSize = new Pair<>();
+
             if (tableDescRequest.getSourceType().isEmpty()) {
+                System.out.println("tableDescRequest tableDescRequest.getSourceType().isEmpty()");
                 // This means request api for showProjectTableNames
                 List<TableNameResponse> hiveTableNameResponses = getHiveTableNameResponses(project, database, table);
                 objWithActualSize.setFirst(hiveTableNameResponses);
                 objWithActualSize.setSecond(hiveTableNameResponses.size());
             } else {
+                System.out.println("tableDescRequest: " + tableDescRequest.getTable());
                 int returnTableSize = calculateTableSize(tableDescRequest.getOffset(), tableDescRequest.getLimit());
                 Pair<List<TableDesc>, Integer> tableDescWithActualSize = getTableDesc(tableDescRequest,
                         returnTableSize);
@@ -1848,10 +1868,14 @@ public class TableService extends BasicService {
             table = notAllowedModifyTableName;
             List<?> tablePage = PagingUtil.cutPage(objWithActualSize.getFirst(), tableDescRequest.getOffset(),
                     tableDescRequest.getLimit());
+
+            System.out.println("tablePage.isEmpty(): " + tablePage.isEmpty());
+            System.out.println("tablePage: " + tablePage);
             if (!tablePage.isEmpty()) {
                 response.putDatabase(database, objWithActualSize.getSecond(), tablePage);
             }
         }
+        System.out.println("getProjectTables response: " + response.getDatabases());
         return response;
     }
 
@@ -1892,8 +1916,10 @@ public class TableService extends BasicService {
     public List<TableNameResponse> getHiveTableNameResponses(String project, String database, final String table)
             throws Exception {
         if (Boolean.TRUE.equals(KylinConfig.getInstanceFromEnv().getLoadHiveTablenameEnabled())) {
+            System.out.println("getHiveTableNameResponses load-hive-tablename-enabled true");
             return getTableNameResponsesInCache(project, database, table);
         } else {
+            System.out.println("getHiveTableNameResponses load-hive-tablename-enabled false");
             return getTableNameResponses(project, database, table);
         }
     }

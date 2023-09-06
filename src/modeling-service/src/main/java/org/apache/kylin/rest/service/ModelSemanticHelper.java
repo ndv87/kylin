@@ -390,6 +390,8 @@ public class ModelSemanticHelper extends BasicService {
         for (JoinTableDesc joinTable : allTables) {
             val tableDesc = tableManager.getTableDesc(joinTable.getTable());
             boolean isFact = joinTable.getKind() == NDataModel.TableKind.FACT;
+// TODO: to fix make lowercase val alias = StringUtils.isEmpty(joinTable.getAlias()) ? tableDesc.getName().toLowerCase() : joinTable.getAlias();
+            System.out.println("convertNamedColumns: " + tableDesc.getName());
             val alias = StringUtils.isEmpty(joinTable.getAlias()) ? tableDesc.getName() : joinTable.getAlias();
             for (ColumnDesc column : modelRequest.getColumnsFetcher().apply(tableDesc, !isFact)) {
                 val namedColumn = new NDataModel.NamedColumn();

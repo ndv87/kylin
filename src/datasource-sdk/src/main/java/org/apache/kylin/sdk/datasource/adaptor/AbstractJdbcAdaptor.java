@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sql.rowset.CachedRowSet;
 
+import lombok.SneakyThrows;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.dbcp2.BasicDataSourceFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -93,6 +94,7 @@ public abstract class AbstractJdbcAdaptor implements Closeable {
 
         DataSourceDefProvider provider = DataSourceDefProvider.getInstance();
         DataSourceDef jdbcDs = provider.getById(getDataSourceId());
+        System.out.println("jdbcDs: " + jdbcDs.toString());
         configurer = new DefaultConfigurer(this, jdbcDs);
     }
 
@@ -142,13 +144,23 @@ public abstract class AbstractJdbcAdaptor implements Closeable {
      * @return
      * @throws SQLException
      */
+    @SneakyThrows
     public Connection getConnection() throws SQLException {
         if (config.getConnectRetryTimes() > 0) {
+            System.out.println("Connection getConnection(): " + config.url);
+            System.out.println("Connection getConnection() dataSource: " + dataSource.getDriverClassName());
+
+            System.out.println("Connection getConnection() dataSource.close()");
+            dataSource.restart();
             int retry = 0;
             while (true) {
                 try {
+                    System.out.println("Connection getConnection() retry: " + retry);
                     retry++;
-                    return dataSource.getConnection();
+                    System.out.println("Connection getConnection() retry start: ");
+                    Connection res = dataSource.getConnection();
+                    System.out.println("Connection getConnection() retry end: ");
+                    return res;
                 } catch (SQLException ex) {
                     logger.warn("Try connect to {} {} time(s) with error {}.", config.url, retry,
                             ex.getLocalizedMessage());
@@ -166,7 +178,10 @@ public abstract class AbstractJdbcAdaptor implements Closeable {
             throw new SQLException(String.format(Locale.ROOT, "Can not connect to %s after retry %d time(s)",
                     config.url, config.getConnectRetryTimes()));
         } else {
-            return dataSource.getConnection();
+            System.out.println("Connection getConnection() no retry start: ");
+            Connection res = dataSource.getConnection();
+            System.out.println("Connection getConnection() no retry end: ");
+            return res;
         }
     }
 
@@ -377,6 +392,7 @@ public abstract class AbstractJdbcAdaptor implements Closeable {
      */
     public List<String> listDatabasesWithCache(boolean init) throws SQLException {
         if (configurer.enableCache()) {
+            System.out.println("listDatabasesWithCache configurer.enableCache()");
             String cacheKey = joiner.join(config.datasourceId, config.url, "databases");
             List<String> cachedDatabases;
             if (init || (cachedDatabases = DATABASES_CACHE.getIfPresent(cacheKey)) == null) {

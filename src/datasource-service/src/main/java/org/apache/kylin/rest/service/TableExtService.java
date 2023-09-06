@@ -43,7 +43,7 @@ import org.apache.kylin.common.exception.KylinException;
 import org.apache.kylin.common.msg.MsgPicker;
 import org.apache.kylin.common.util.HadoopUtil;
 import org.apache.kylin.common.util.Pair;
-import org.apache.kylin.common.util.StringHelper;
+//import org.apache.kylin.common.util.StringHelper;
 import org.apache.kylin.metadata.model.ColumnDesc;
 import org.apache.kylin.metadata.model.ISourceAware;
 import org.apache.kylin.metadata.model.NTableMetadataManager;
@@ -100,6 +100,10 @@ public class TableExtService extends BasicService {
         String project = request.getProject();
         aclEvaluate.checkProjectWritePermission(project);
         Set<String> existDbs = Sets.newHashSet(tableService.getSourceDbNames(project));
+        System.out.println("loadTablesWithShortCircuit.existDbs: " + existDbs);
+
+        System.out.println("request.getDatabases(): " + Arrays.toString(request.getDatabases()));
+
         int count = 0;
         int dbSize = ArrayUtils.isNotEmpty(request.getDatabases()) ? request.getDatabases().length : 0;
         int tableSize = ArrayUtils.isNotEmpty(request.getTables()) ? request.getTables().length : 0;
@@ -112,19 +116,22 @@ public class TableExtService extends BasicService {
         Map<String, Set<String>> dbs = new HashMap<>();
         if (dbSize > 0) {
             tableResponseFromDB = new LoadTableResponse();
-            StringHelper.toUpperCaseArray(request.getDatabases(), request.getDatabases());
+//            StringHelper.toUpperCaseArray(request.getDatabases(), request.getDatabases()); //TODO was uncomment:
             dbs = classifyDbTables(request.getDatabases(), true);
             Pair<List<Pair<TableDesc, TableExtDesc>>, Integer> pair = findCanLoadTables(dbs, project,
                     true, tableResponseFromDB, existDbs, Maps.newHashMap());
             canLoadTablesFromDB = pair.getFirst();
             count = pair.getSecond();
             checkThreshold(thresholdEnabled, count);
+
+            System.out.println("tableResponseFromDB.getLoaded(): " + tableResponseFromDB.getLoaded());
+            System.out.println("tableResponseFromDB.getFailed(): " + tableResponseFromDB.getFailed());
         }
 
         LoadTableResponse tableResponse = null;
         List<Pair<TableDesc, TableExtDesc>> canLoadTables = null;
         if (tableSize > 0) {
-            StringHelper.toUpperCaseArray(request.getTables(), request.getTables());
+//            StringHelper.toUpperCaseArray(request.getTables(), request.getTables()); //TODO was uncomment:
             Map<String, Set<String>> tables = classifyDbTables(request.getTables(), false);
             tableResponse = new LoadTableResponse();
             Pair<List<Pair<TableDesc, TableExtDesc>>, Integer> pair = findCanLoadTables(tables, project,
@@ -133,6 +140,9 @@ public class TableExtService extends BasicService {
             count = pair.getSecond() + count;
             checkThreshold(thresholdEnabled, count);
         }
+
+//        System.out.println("tableResponse.getLoaded(): " + tableResponse.getLoaded());
+//        System.out.println("tableResponse.getFailed(): " + tableResponse.getFailed());
 
         LoadTableResponse loadTableResponse = new LoadTableResponse();
         if (tableResponseFromDB != null) {
@@ -143,6 +153,9 @@ public class TableExtService extends BasicService {
             loadTableResponse.getLoaded().addAll(tableResponseFromDB.getLoaded());
             loadTableResponse.getNeedRealSampling().addAll(tableResponseFromDB.getNeedRealSampling());
         }
+
+//        System.out.println("loadTableResponse.getLoaded(): " + loadTableResponse.getLoaded());
+//        System.out.println("loadTableResponse.getFailed(): " + loadTableResponse.getFailed());
 
         if (tableResponse != null) {
             if (!canLoadTables.isEmpty()) {
@@ -401,12 +414,13 @@ public class TableExtService extends BasicService {
         for (String str : dbTables) {
             String db;
             String table = null;
+            System.out.println("classifyDbTables db: " + str);
             if (isDb) {
-                db = StringUtils.upperCase(str);
+                db = str; //StringUtils.upperCase(str); // TODO was uppercase
             } else {
                 String[] dbTableName = HadoopUtil.parseHiveTableName(str);
-                db = StringUtils.upperCase(dbTableName[0]);
-                table = StringUtils.upperCase(dbTableName[1]);
+                db = dbTableName[0]; //StringUtils.upperCase(dbTableName[0]); // TODO was uppercase
+                table = dbTableName[1]; //StringUtils.upperCase(dbTableName[1]); // TODO was uppercase
             }
             Set<String> tables = dbTableMap.getOrDefault(db, Sets.newHashSet());
             if (table != null) {

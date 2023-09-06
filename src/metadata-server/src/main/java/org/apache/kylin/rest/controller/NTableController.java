@@ -231,6 +231,11 @@ public class NTableController extends NBasicController {
 
         LoadTableResponse loadTableResponse = tableExtService.loadTablesWithShortCircuit(tableLoadRequest);
 
+        System.out.println("EnvelopeResponse getLoaded");
+        System.out.println(loadTableResponse.getLoaded());
+        System.out.println("EnvelopeResponse getFailed");
+        System.out.println(loadTableResponse.getFailed());
+
         if (!loadTableResponse.getNeedRealSampling().isEmpty() && Boolean.TRUE.equals(tableLoadRequest.getNeedSampling())) {
             TableSamplingService.checkSamplingRows(tableLoadRequest.getSamplingRows());
             tableSamplingService.sampling(loadTableResponse.getNeedRealSampling(), tableLoadRequest.getProject(),

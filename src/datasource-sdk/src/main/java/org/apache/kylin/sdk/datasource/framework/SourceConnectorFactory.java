@@ -53,7 +53,13 @@ public class SourceConnectorFactory {
         if (adaptorClazz == null)
             adaptorClazz = decideAdaptorClassName(jdbcConf.datasourceId);
 
+        System.out.println("JdbcConnector.getJdbcConnector.jdbcConf: ");
+        jdbcConf.getOptions().entrySet().forEach(e-> System.out.println(e.getKey() + ": " + e.getValue()));
+
         try {
+            System.out.println("JdbcConnector.getJdbcConnector.adaptorClazz: " + adaptorClazz);
+            AdaptorFactory.createJdbcAdaptor(adaptorClazz, jdbcConf);
+            System.out.println("JdbcConnector.getJdbcConnector new JdbcConnector");
             return new JdbcConnector(AdaptorFactory.createJdbcAdaptor(adaptorClazz, jdbcConf));
         } catch (Exception e) {
             throw new RuntimeException("Failed to get JdbcConnector from env.", e);

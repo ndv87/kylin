@@ -35,6 +35,7 @@ import org.apache.spark.util.Utils
 
 object ExceptionTerminator extends Logging {
 
+  //noinspection ScalaStyle
   def resolveException(rl: ResourceLack, eventLoop: KylinJobEventLoop): Unit = {
     val env = KylinBuildEnv.get()
     val result = rl.throwable match {
@@ -47,6 +48,7 @@ object ExceptionTerminator extends Logging {
       case _: RuntimeException =>
         resolveRuntimeException(env, rl.throwable)
       case _ =>
+        System.out.println(s"Retry with increasing memory, caused by: ${rl.throwable}")
         logWarning(s"Retry with increasing memory, caused by: ${rl.throwable}")
         incMemory(env)
     }
