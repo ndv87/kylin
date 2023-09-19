@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
+kylin.source.load-hive-tablename-enabled=false
 server.port=7070
 kylin.query.init-sparder-async=false
 
