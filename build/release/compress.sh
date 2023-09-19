@@ -38,6 +38,7 @@ mkdir -p ${package_name}/lib/ext
 # Spark binary won't be distributed into Kylin binary due to size limit
 cp -rf spark ${package_name}/
 cp -rf sample_project ${package_name}/
+cp -rf sample_project2 ${package_name}/
 cp -rf samples ${package_name}/
 
 if [[ -d "influxdb" ]]; then

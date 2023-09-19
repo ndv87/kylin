@@ -238,7 +238,7 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
                 System.out.println("listTables rs.next(): " + rs.getString(TABLE_NAME));
                 String name = rs.getString(TABLE_NAME);
                 //&& rs.getString("TABLE_TYPE").equalsIgnoreCase("TABLE")
-                if (StringUtils.isNotBlank(name)) {
+                if (StringUtils.isNotBlank(name) && (rs.getString("TABLE_TYPE").equalsIgnoreCase("TABLE") || rs.getString("TABLE_TYPE").equalsIgnoreCase("VIEW"))) {
                     System.out.println("listTables ret.add(name): " + rs.getString(TABLE_NAME));
                     ret.add(name);
                 }

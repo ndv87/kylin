@@ -27,9 +27,25 @@ rm -rf ${DIR}/package/*
 if [[ ! -d ${DIR}/package/ ]]; then
     mkdir -p ${DIR}/package/
 fi
-#${DIR}/../../../build/release/release.sh
+if [[ ! -d ${DIR}/package/libs ]]; then
+    mkdir -p ${DIR}/package/libs
+fi
+${DIR}/../../../build/release/release.sh
 cp ${DIR}/../../../dist/apache-kylin-*.tar.gz ${DIR}/package/
+
+cp ~/.m2/repository/com/h2database/h2/1.4.196/h2-1.4.196.jar ${DIR}/package/libs
+cp ../../metadata-server/target/kylin-metadata-server-5.0.0-beta.jar ${DIR}/package/libs
+cp ../../modeling-service/target/kylin-modeling-service-5.0.0-beta.jar ${DIR}/package/libs
+cp ../../common-service/target/kylin-common-service-5.0.0-beta.jar ${DIR}/package/libs
+cp ../../core-metadata/target/kylin-core-metadata-5.0.0-beta.jar ${DIR}/package/libs
+
+cp ~/.m2/repository/org/postgresql/postgresql/42.4.1/postgresql-42.4.1.jar ${DIR}/package/libs
+cp ../../spark-project/source-jdbc/target/kylin-source-jdbc-5.0.0-beta.jar ${DIR}/package/libs
+cp ../../datasource-sdk/target/kylin-datasource-sdk-5.0.0-beta.jar ${DIR}/package/libs
+cp ../../datasource-service/target/kylin-datasource-service-5.0.0-beta.jar ${DIR}/package/libs
+cp ../../spark-project/engine-spark/target/kylin-engine-spark-5.0.0-beta.jar ${DIR}/package/libs
+
 
 echo "start to build Hadoop docker image"
 docker build -f Dockerfile_hadoop -t hadoop3.2.1-all-in-one-for-kylin5 .
-docker build -f Dockerfile_kylin -t apachekylin/apache-kylin-standalone:5.0.0 .
+docker build -f Dockerfile_kylin -t apachekylin/apache-kylin-standalone:5.0.0-beta .
