@@ -162,7 +162,6 @@ public class JdbcConnector implements Closeable {
             }
             dbNames.removeAll(removed);
         }
-
         System.out.println("listDatabases() dbNames: " + dbNames);
         Arrays.stream(Thread.currentThread().getStackTrace()).forEach(l-> System.out.println(l.toString()));
         return dbNames;

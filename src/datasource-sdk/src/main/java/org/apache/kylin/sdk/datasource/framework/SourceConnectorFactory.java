@@ -25,8 +25,12 @@ import org.apache.kylin.common.KylinConfigExt;
 import org.apache.kylin.sdk.datasource.adaptor.AdaptorConfig;
 import org.apache.kylin.sdk.datasource.adaptor.DefaultAdaptor;
 import org.apache.kylin.sdk.datasource.adaptor.MysqlAdaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SourceConnectorFactory {
+    private static final Logger logger = LoggerFactory.getLogger(SourceConnectorFactory.class);
+
     private SourceConnectorFactory() {
     }
 
@@ -53,13 +57,14 @@ public class SourceConnectorFactory {
         if (adaptorClazz == null)
             adaptorClazz = decideAdaptorClassName(jdbcConf.datasourceId);
 
-        System.out.println("JdbcConnector.getJdbcConnector.jdbcConf: ");
+
+        logger.trace("JdbcConnector.getJdbcConnector.jdbcConf: ");
         jdbcConf.getOptions().entrySet().forEach(e-> System.out.println(e.getKey() + ": " + e.getValue()));
 
         try {
-            System.out.println("JdbcConnector.getJdbcConnector.adaptorClazz: " + adaptorClazz);
+            logger.trace("JdbcConnector.getJdbcConnector.adaptorClazz: " + adaptorClazz);
             AdaptorFactory.createJdbcAdaptor(adaptorClazz, jdbcConf);
-            System.out.println("JdbcConnector.getJdbcConnector new JdbcConnector");
+            logger.trace("JdbcConnector.getJdbcConnector new JdbcConnector");
             return new JdbcConnector(AdaptorFactory.createJdbcAdaptor(adaptorClazz, jdbcConf));
         } catch (Exception e) {
             throw new RuntimeException("Failed to get JdbcConnector from env.", e);

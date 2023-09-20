@@ -201,10 +201,10 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
         List<String> ret = new LinkedList<>();
         try (Connection con = getConnection(); ResultSet rs = con.getMetaData().getSchemas()) {
             while (rs.next()) {
-                System.out.println("listDatabases rs.next(): " + rs.getString(TABLE_SCHEM));
+                logger.trace("listDatabases rs.next(): " + rs.getString(TABLE_SCHEM));
                 String schema = rs.getString(TABLE_SCHEM);
                 if (StringUtils.isNotBlank(schema)) {
-                    System.out.println("listDatabases ret.add(schema): " + rs.getString(TABLE_SCHEM));
+                    logger.trace("listDatabases ret.add(schema): " + rs.getString(TABLE_SCHEM));
                     ret.add(schema);
                 }
             }
@@ -221,28 +221,31 @@ public class DefaultAdaptor extends AbstractJdbcAdaptor {
      */
     @Override
     public List<String> listTables(String schema) throws SQLException {
-        System.out.println("Call listTables(String schema): " + schema);
+        logger.trace("Call listTables(String schema): " + schema);
 
         Arrays.stream(Thread.currentThread().getStackTrace()).forEach(l -> System.out.println(l.toString()));
 
         List<String> ret = new ArrayList<>();
         Connection conne = getConnection();
-        System.out.println("Call listTables(String schema) conne: " + conne.getClass().getName());
+        logger.trace("Call listTables(String schema) conne: " + conne.getClass().getName());
+
 //        String loweredSchema = schema.toLowerCase();
         try (Connection conn = getConnection(); ResultSet rs = conn.getMetaData().getTables(null, schema, null, null)) {
 //            System.out.println("try (Connection conn = getConnection() rs.getStrin: " + rs.getString(1));
-            System.out.println("try (Connection conn = getConnection()");
+            logger.trace("try (Connection conn = getConnection()");
+
             while (rs.next()) {
-                System.out.println("listTables rs.next(): " + rs.getString(TABLE_NAME) + ". TableType: " + rs.getString("TABLE_TYPE"));
+                logger.trace("listTables rs.next(): " + rs.getString(TABLE_NAME) + ". TableType: " + rs.getString("TABLE_TYPE"));
+
                 String name = rs.getString(TABLE_NAME);
                 //&& (rs.getString("TABLE_TYPE").equalsIgnoreCase("TABLE") || rs.getString("TABLE_TYPE").equalsIgnoreCase("VIEW"))
                 try {
                     if (StringUtils.isNotBlank(name) && (rs.getString("TABLE_TYPE").equalsIgnoreCase("TABLE") || rs.getString("TABLE_TYPE").equalsIgnoreCase("VIEW"))) {
-                        System.out.println("listTables ret.add(name): " + rs.getString(TABLE_NAME));
+                        logger.trace("listTables ret.add(name): " + rs.getString(TABLE_NAME));
                         ret.add(name);
                     }
                 } catch (Exception e) {
-                    System.out.println("listTables rs.next() error: " + e.getMessage() + ". For table: " + name);
+                    logger.trace("listTables rs.next() error: " + e.getMessage() + ". For table: " + name);
                 }
 
             }

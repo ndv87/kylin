@@ -231,7 +231,7 @@ public class NTableMetadataManager {
     }
 
     public TableExtDesc getTableExtIfExists(TableDesc t) {
-        System.out.println("getTableExtIfExists t.getIdentity(): " + t.getIdentity());
+        logger.trace("getTableExtIfExists t.getIdentity(): " + t.getIdentity());
         return srcExtCrud.get(t.getIdentity());
     }
 

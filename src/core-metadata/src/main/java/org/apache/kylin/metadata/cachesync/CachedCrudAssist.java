@@ -169,18 +169,20 @@ public abstract class CachedCrudAssist<T extends RootPersistentEntity> {
     }
 
     public T get(String resourceName) {
-        System.out.println("CachedCrudAssist.resourceName: " + resourceName);
-        System.out.println("CachedCrudAssist.resRootPath: " + resRootPath);
-        System.out.println("CachedCrudAssist all resources!: " + store.collectResourceRecursively(resRootPath, ""));
+        log.trace("CachedCrudAssist.resourceName: " + resourceName);
+        log.trace("CachedCrudAssist.resRootPath: " + resRootPath);
+        log.trace("CachedCrudAssist all resources!: " + store.collectResourceRecursively(resRootPath, ""));
+
         String upperResource = resourceName.toUpperCase(Locale.ROOT);
         String upperResourcePath = resourcePath(upperResource);
-        System.out.println("CachedCrudAssist.getResource: " + store.getResource(upperResourcePath));
+        log.trace("CachedCrudAssist.getResource: " + store.getResource(upperResourcePath));
+
 
         String resourceNameFinal = resourceName.contains(".") ? upperResource : resourceName;
 
         val raw = store.getResource(resourcePath(resourceNameFinal));
         if (raw == null) {
-            System.out.println("CachedCrudAssist.get raw == null");
+            log.trace("CachedCrudAssist.get raw == null");
             cache.invalidate(resourceNameFinal);
             return null;
         }

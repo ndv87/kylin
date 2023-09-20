@@ -100,9 +100,9 @@ public class TableExtService extends BasicService {
         String project = request.getProject();
         aclEvaluate.checkProjectWritePermission(project);
         Set<String> existDbs = Sets.newHashSet(tableService.getSourceDbNames(project));
-        System.out.println("loadTablesWithShortCircuit.existDbs: " + existDbs);
+        logger.trace("loadTablesWithShortCircuit.existDbs: " + existDbs);
 
-        System.out.println("request.getDatabases(): " + Arrays.toString(request.getDatabases()));
+        logger.trace("request.getDatabases(): " + Arrays.toString(request.getDatabases()));
 
         int count = 0;
         int dbSize = ArrayUtils.isNotEmpty(request.getDatabases()) ? request.getDatabases().length : 0;
@@ -124,8 +124,8 @@ public class TableExtService extends BasicService {
             count = pair.getSecond();
             checkThreshold(thresholdEnabled, count);
 
-            System.out.println("tableResponseFromDB.getLoaded(): " + tableResponseFromDB.getLoaded());
-            System.out.println("tableResponseFromDB.getFailed(): " + tableResponseFromDB.getFailed());
+            logger.trace("tableResponseFromDB.getLoaded(): " + tableResponseFromDB.getLoaded());
+            logger.trace("tableResponseFromDB.getFailed(): " + tableResponseFromDB.getFailed());
         }
 
         LoadTableResponse tableResponse = null;
@@ -414,7 +414,8 @@ public class TableExtService extends BasicService {
         for (String str : dbTables) {
             String db;
             String table = null;
-            System.out.println("classifyDbTables db: " + str);
+            logger.trace("classifyDbTables db: " + str);
+
             if (isDb) {
                 db = str; //StringUtils.upperCase(str); // TODO was uppercase
             } else {

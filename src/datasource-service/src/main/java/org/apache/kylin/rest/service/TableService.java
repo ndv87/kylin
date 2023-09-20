@@ -245,13 +245,13 @@ public class TableService extends BasicService {
         //get table not fuzzy,can use getTableDesc(tableName)
         // TODO was:  if (StringUtils.isNotEmpty(tableDescRequest.getTable()) && !tableDescRequest.isFuzzy()) {
         if (StringUtils.isNotEmpty(tableDescRequest.getTable()) && tableDescRequest.isFuzzy()) {
-            System.out.println("getTableDesc if (StringUtils.isNotEmpty");
+            logger.trace("getTableDesc if (StringUtils.isNotEmpty");
             val tableDesc = nTableMetadataManager
                     .getTableDesc(tableDescRequest.getDatabase() + "." + tableDescRequest.getTable());
             if (tableDesc != null && tableDesc.isAccessible(streamingEnabled))
                 tables.add(tableDesc);
         } else {
-            System.out.println("getTableDesc else (StringUtils.isNotEmpty");
+            logger.trace("getTableDesc else (StringUtils.isNotEmpty");
             nTableMetadataManager.listAllTables().forEach(e-> System.out.println("listAllTables: " + e.getName()));
 
             tables.addAll(nTableMetadataManager.listAllTables().stream().filter(tableDesc -> {
@@ -1836,7 +1836,7 @@ public class TableService extends BasicService {
         Collection<String> databases = useHiveDatabase ? getSourceDbNames(project) : getLoadedDatabases(project);
         val projectInstance = getManager(NProjectManager.class).getProject(project);
         List<String> tableFilterList = DataSourceState.getInstance().getHiveFilterList(projectInstance);
-        System.out.println("NInitTablesResponse!: " + databases);
+        logger.trace("NInitTablesResponse!: " + databases);
         for (String database : databases) {
             if ((exceptDatabase != null && !exceptDatabase.equalsIgnoreCase(database))
                     || (!tableFilterList.isEmpty() && !tableFilterList.contains(database))) {
@@ -1852,13 +1852,13 @@ public class TableService extends BasicService {
             Pair<List<?>, Integer> objWithActualSize = new Pair<>();
 
             if (tableDescRequest.getSourceType().isEmpty()) {
-                System.out.println("tableDescRequest tableDescRequest.getSourceType().isEmpty()");
+                logger.trace("tableDescRequest tableDescRequest.getSourceType().isEmpty()");
                 // This means request api for showProjectTableNames
                 List<TableNameResponse> hiveTableNameResponses = getHiveTableNameResponses(project, database, table);
                 objWithActualSize.setFirst(hiveTableNameResponses);
                 objWithActualSize.setSecond(hiveTableNameResponses.size());
             } else {
-                System.out.println("tableDescRequest: " + tableDescRequest.getTable());
+                logger.trace("tableDescRequest: " + tableDescRequest.getTable());
                 int returnTableSize = calculateTableSize(tableDescRequest.getOffset(), tableDescRequest.getLimit());
                 Pair<List<TableDesc>, Integer> tableDescWithActualSize = getTableDesc(tableDescRequest,
                         returnTableSize);
@@ -1869,13 +1869,14 @@ public class TableService extends BasicService {
             List<?> tablePage = PagingUtil.cutPage(objWithActualSize.getFirst(), tableDescRequest.getOffset(),
                     tableDescRequest.getLimit());
 
-            System.out.println("tablePage.isEmpty(): " + tablePage.isEmpty());
-            System.out.println("tablePage: " + tablePage);
+            logger.trace("tablePage.isEmpty(): " + tablePage.isEmpty());
+            logger.trace("tablePage: " + tablePage);
+
             if (!tablePage.isEmpty()) {
                 response.putDatabase(database, objWithActualSize.getSecond(), tablePage);
             }
         }
-        System.out.println("getProjectTables response: " + response.getDatabases());
+        logger.trace("getProjectTables response: " + response.getDatabases());
         return response;
     }
 

@@ -21,28 +21,33 @@ import java.lang.reflect.Constructor;
 
 import org.apache.kylin.sdk.datasource.adaptor.AbstractJdbcAdaptor;
 import org.apache.kylin.sdk.datasource.adaptor.AdaptorConfig;
+import org.apache.kylin.sdk.datasource.framework.def.DataSourceDefProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AdaptorFactory {
+    private static final Logger logger = LoggerFactory.getLogger(AdaptorFactory.class);
+
     public static AbstractJdbcAdaptor createJdbcAdaptor(String adaptorClazz, AdaptorConfig jdbcConf) throws Exception {
         Constructor<?>[] list = Class.forName(adaptorClazz).getConstructors();
-        System.out.println("AbstractJdbcAdaptor.list length: " + list.length);
+        logger.trace("AbstractJdbcAdaptor.list length: " + list.length);
         for (Constructor<?> c : list) {
-            System.out.println("c.getParameterTypes().length == 1: " + c.getParameterTypes().length);
+            logger.trace("c.getParameterTypes().length == 1: " + c.getParameterTypes().length);
             if (c.getParameterTypes().length == 1) {
                 if (c.getParameterTypes()[0] == AdaptorConfig.class) {
-                    System.out.println("c.getParameterTypes()[0] == AdaptorConfig.class");
-                    System.out.println("AbstractJdbcAdaptor jdbcConf.getOptions(): ");
-                    jdbcConf.getOptions().entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+                    logger.trace("c.getParameterTypes()[0] == AdaptorConfig.class");
+                    logger.trace("AbstractJdbcAdaptor jdbcConf.getOptions(): ");
 
-                    System.out.println("c.getName(): " + c.getName());
+                    jdbcConf.getOptions().entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
+                    logger.trace("c.getName(): " + c.getName());
 
                     AbstractJdbcAdaptor adp = (AbstractJdbcAdaptor) c.newInstance(jdbcConf);
-
-                    System.out.println("adp: " + adp.getJdbcDriver());
+                    logger.trace("adp: " + adp.getJdbcDriver());
 
                     return adp; // adaptor with kylin AdaptorConfig
                 } else {
-                    System.out.println("c.getParameterTypes()[0] != AdaptorConfig.class");
+                    logger.trace("c.getParameterTypes()[0] != AdaptorConfig.class");
+
                     // Compatible with old adaptors with kap AdaptorConfig
                     String configClassName = "org.apache.kylin.sdk.datasource.adaptor.AdaptorConfig";
                     AdaptorConfig conf = (AdaptorConfig) Class.forName(configClassName)
@@ -53,12 +58,13 @@ public class AdaptorFactory {
                     conf.poolMaxTotal = jdbcConf.poolMaxTotal;
                     conf.datasourceId = jdbcConf.datasourceId;
 
-                    System.out.println("AbstractJdbcAdaptor jdbcConf.getOptions(): ");
+                    logger.trace("AbstractJdbcAdaptor jdbcConf.getOptions(): ");
+
                     jdbcConf.getOptions().entrySet().forEach(e -> System.out.println(e.getKey() + ": " + e.getValue()));
 
                     AbstractJdbcAdaptor adp = (AbstractJdbcAdaptor) c.newInstance(conf);
 
-                    System.out.println("adp: " + adp.getJdbcDriver());
+                    logger.trace("adp: " + adp.getJdbcDriver());
 
                     return (AbstractJdbcAdaptor) c.newInstance(conf);
                 }
