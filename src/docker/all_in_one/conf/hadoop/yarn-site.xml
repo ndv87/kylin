@@ -23,7 +23,7 @@
     </property>
     <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>2048</value>
+        <value>48192</value>
     </property>
     <property>
         <name>yarn.nodemanager.vmem-check-enabled</name>
@@ -31,11 +31,11 @@
     </property>
     <property>
         <name>yarn.nodemanager.resource.memory-mb</name>
-        <value>8192</value>
+        <value>48192</value>
     </property>
     <property>
         <name>yarn.nodemanager.resource.cpu-vcores</name>
-        <value>4</value>
+        <value>40</value>
     </property>
     <property>
         <name>yarn.scheduler.capacity.maximum-am-resource-percent</name>
