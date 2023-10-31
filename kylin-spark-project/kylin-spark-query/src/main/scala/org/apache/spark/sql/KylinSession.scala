@@ -171,18 +171,19 @@ object KylinSession extends Logging {
       }
       sparkConf.set("spark.debug.maxToStringFields", "1000")
       sparkConf.set("spark.scheduler.mode", "FAIR")
-      if (new File(
-        KylinConfig.getKylinConfDir.getCanonicalPath + "/fairscheduler.xml")
-        .exists()) {
-        val fairScheduler = KylinConfig.getKylinConfDir.getCanonicalPath + "/fairscheduler.xml"
-        sparkConf.set("spark.scheduler.allocation.file", fairScheduler)
-      }
+//      if (new File(
+//        KylinConfig.getKylinConfDir.getCanonicalPath + "/fairscheduler.xml")
+//        .exists()) {
+//        val fairScheduler = KylinConfig.getKylinConfDir.getCanonicalPath + "/fairscheduler.xml"
+//        sparkConf.set("spark.scheduler.allocation.file", fairScheduler)
+//      }
 
       if (!"true".equalsIgnoreCase(System.getProperty("spark.local"))) {
         if (sparkConf.get("spark.master").startsWith("yarn")) {
           setDistJarFiles(sparkConf, "spark.yarn.dist.jars",
             KylinConfig.getInstanceFromEnv.getKylinParquetJobJarPath)
           setDistJarFiles(sparkConf, "spark.yarn.dist.files", conf.sparkUploadFiles())
+          setDistJarFiles(sparkConf, "spark.files", conf.sparkUploadFiles())
         } else {
           setDistJarFiles(sparkConf, "spark.jars",
             KylinConfig.getInstanceFromEnv.getKylinParquetJobJarPath)
@@ -213,6 +214,7 @@ object KylinSession extends Logging {
         sparkConf.setMaster("local")
       }
 
+      println("sparkConf: " + sparkConf.getAll.mkString("\n"))
       sparkConf
     }
 

@@ -59,6 +59,9 @@ public class JDBCConnectionManager {
         try {
             this.dbcpProps = initDbcpProps(config);
 
+            Class.forName("org.postgresql.Driver");
+            System.out.println("Register org.postgresql.Driver");
+            System.out.println("dbcpProps: " + dbcpProps);
             dataSource = BasicDataSourceFactory.createDataSource(getDbcpProperties());
             Connection conn = getConn();
             DatabaseMetaData mdm = conn.getMetaData();

@@ -152,7 +152,7 @@ public class DebugTomcat {
         // Higher 8.5.1 and above version of tomcat will scan the manifest default.
         JarScanner jarScanner = webContext.getJarScanner();
         if (jarScanner instanceof StandardJarScanner) {
-            ((StandardJarScanner) jarScanner).setScanManifest(false);
+//            ((StandardJarScanner) jarScanner).setScanManifest(false);
         }
         ErrorPage notFound = new ErrorPage();
         notFound.setErrorCode(404);

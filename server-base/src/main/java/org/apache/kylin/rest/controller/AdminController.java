@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.KylinVersion;
 import org.apache.kylin.common.util.VersionUtil;
@@ -75,7 +74,8 @@ public class AdminController extends BasicController {
             envRes.put("env", env);
 
             return envRes;
-        } catch (ConfigurationException | UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException |
+                 org.apache.commons.configuration2.ex.ConfigurationException e) {
             throw new RuntimeException(msg.getGET_ENV_CONFIG_FAIL(), e);
         }
     }

@@ -104,7 +104,8 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>provided</scope>
+            <scope>compile</scope>
+<!--            <scope>provided</scope>-->
         </dependency>
 
         <dependency>

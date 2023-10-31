@@ -18,17 +18,20 @@
 
 package org.apache.kylin.rest.service;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.util.OrderedProperties;
@@ -39,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+//import java.io.BufferedWriter;
 
 import org.apache.kylin.shaded.com.google.common.collect.Lists;
 
@@ -52,7 +56,7 @@ public class AdminService extends BasicService {
      * Get Java Env info as string
      */
     @PreAuthorize(Constant.ACCESS_HAS_ROLE_ADMIN)
-    public String getEnv() throws ConfigurationException, UnsupportedEncodingException {
+    public String getEnv() throws ConfigurationException, UnsupportedEncodingException, org.apache.commons.configuration2.ex.ConfigurationException {
         PropertiesConfiguration tempConfig = new PropertiesConfiguration();
         OrderedProperties orderedProperties = new OrderedProperties(new TreeMap<String, String>());
         // Add Java Env
@@ -77,8 +81,12 @@ public class AdminService extends BasicService {
             tempConfig.addProperty(entry.getKey(), entry.getValue());
         }
 
-        // do save
-        tempConfig.save(baos);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(baos))) {
+            tempConfig.write(writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         content = baos.toString("UTF-8");
         return content;
     }

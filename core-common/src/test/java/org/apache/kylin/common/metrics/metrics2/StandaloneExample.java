@@ -23,8 +23,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+//import org.apache.commons.configuration.SubsetConfiguration;
 
-import org.apache.commons.configuration.SubsetConfiguration;
+import org.apache.commons.configuration2.SubsetConfiguration;
 import org.apache.hadoop.metrics2.MetricsSystem;
 import org.apache.hadoop.metrics2.lib.DefaultMetricsSystem;
 import org.apache.hadoop.metrics2.sink.FileSink;
@@ -55,7 +56,7 @@ public class StandaloneExample {
         // Will be invoked every 10seconds by default
         FileSink sink = new FileSink();
         metrics2.register("filesink", "filesink", sink);
-        sink.init(new SubsetConfiguration(null, null) {
+        sink.init(new SubsetConfiguration(new org.apache.commons.configuration2.BaseConfiguration(), null) {
             public String getString(String key) {
                 if (key.equals("filename")) {
                     return null;

@@ -17,7 +17,6 @@
  */
 
 package org.apache.kylin.common.persistence;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.kylin.common.KylinConfig;
 import org.apache.kylin.common.StorageURL;
@@ -142,6 +140,7 @@ public class JDBCResourceStore extends PushdownResourceStore {
                 try {
                     String checkTableExistsSql = sqls.getCheckTableExistsSql(tableName);
                     ps = connection.prepareStatement(checkTableExistsSql);
+                    System.out.println("Query checkTableExists: " + checkTableExistsSql);
                     rs = ps.executeQuery();
                     while (rs.next()) {
                         // use equalsIgnoreCase() as some RDBMS is case insensitive

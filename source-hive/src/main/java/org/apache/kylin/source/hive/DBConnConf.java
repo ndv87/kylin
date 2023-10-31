@@ -20,7 +20,7 @@ package org.apache.kylin.source.hive;
 
 import java.util.Locale;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
 
 public class DBConnConf {
     public static final String KEY_DRIVER = "driver";
